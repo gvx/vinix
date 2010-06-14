@@ -1,0 +1,3 @@
+[submodule "lpod"]
+	path = lpod
+	url = git://code.lpod-project.org/lpod-python.git
