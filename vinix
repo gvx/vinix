@@ -1,0 +1,166 @@
+#!/usr/bin/env python
+import ttyLinux
+from table import Table
+import atexit
+import sys
+import os.path
+import time
+import keys
+import console
+#sys.path.append(os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'lpod')))
+#print(sys.path[-1])
+import lpod
+global _G
+_G = globals()
+
+W, H = console.getTerminalSize()
+Wmax = W - 1
+Hmax = H - 1
+#from commands import commands
+#import commands
+
+ttyLinux.setSpecial()
+ttyLinux.clearScreen()
+
+atexit.register(ttyLinux.setNormal)
+
+env = Table()
+env.mode = 'n'
+env.x = 0
+env.y = 0
+env.backlog = ''
+
+def clampx(env,document):
+	y = document.yindex + env.y
+	env.x = min(env.x, y < len(document.text) and len(document.text[y]) or 0)
+	#if y < len(document.text) and document.text[y].startswith('    '):
+	#	env.x = max(env.x, 4)
+	if y < len(document.text) and len(document.text[y]) > len(document.text[y].lstrip()):
+		env.x = max(env.x, len(document.text[y]) - len(document.text[y].lstrip()))
+env.clampx = clampx
+
+commands = Table()
+for mode in ['n', 'c', 'i']:
+	commands[mode] = Table()
+	commands[mode].self = commands[mode]
+	execfile('commands/'+mode+'.py', _G, commands[mode])
+	if commands[mode].self == commands[mode]:
+		#to prevent nasty things from happening if you do :self<Enter>
+		del commands[mode]['self']
+
+n = commands.n
+c = commands.c
+i = commands.i
+
+document = Table()
+document.text = open('ex2.txt').read().splitlines() #this will be changed
+document.yindex = 0
+#document.data = lpod.document.odf_get_document(file)
+#if document.data.get_type() != 'text':
+#	be very angry
+#document.data = lpod.document.odf_new_document_from_type('text')
+
+drawbar = Table()
+def _():
+	return ':'+env.cstring
+drawbar.c = _
+def _():
+	return ' '*50+env.backlog
+drawbar.n = _
+def _():
+	return ' -- INSERT --'
+drawbar.i = _
+
+def refreshbar():
+	ttyLinux.writeChar(Hmax, 0, drawbar[env.mode]().ljust(W))
+
+def refreshscreen():
+	ttyLinux.writeChar(0, 0, '')
+	y = 0
+	for line in document.text[document.yindex:document.yindex+H+1]:
+		sys.stdout.write(line.ljust(W))
+		y += 1
+		ttyLinux.writeChar(y, 0, '')
+	while y < Hmax:
+		#ttyLinux.writeChar(y, 0, '\x1b[31m'+'~'*W+'\x1b[0m')#  '~'.ljust(W)
+		#ttyLinux.writeChar(y, 0, '\x1b[31m'+'~~~'.ljust(W)+'\x1b[0m')
+		ttyLinux.writeChar(y, 0, '\x1b[31m~~~\x1b[0m'+' '*(W-3))
+		y += 1
+	refreshbar()
+
+def updatepos():
+	ttyLinux.writeChar(env.y, env.x, '')
+
+#print(commands.n.__dict__)
+
+refreshscreen()
+
+def normal_key(ch):
+	if env.backlog+ch in n:
+		n[env.backlog+ch](env, document)
+		env.backlog = ''
+	elif ch == keys.esc or ch == keys.enter:
+		env.backlog = ''
+	#elif ch == keys.backspace:
+	elif ch in keys.bs_keys:
+		env.backlog = env.backlog[:-1]
+	else:
+		#pass #string things together
+		#print([ord(x) for x in ch], ch)
+		env.backlog += ch
+	refreshbar()
+	updatepos()
+
+def command_key(ch):
+	env.cstring += ch
+	ttyLinux.writeChar(env.y, env.x, ch)
+	env.x += 1
+	updatepos()
+
+while True:
+	ch = ttyLinux.readLookAhead()
+	if ch:
+		if env.mode == 'n':
+			if len(ch) > 1 and ch[0] != keys.esc:
+				for char in ch:
+					normal_key(char)
+			else:
+				normal_key(ch)
+		elif env.mode == 'c':
+			if ch == keys.backspace:
+				if env.cstring:
+					env.cstring = env.cstring[:-1]
+					env.x -= 1
+					ttyLinux.writeChar(Hmax, 0, (':'+env.cstring).ljust(W))
+					updatepos()
+				else:
+					env.mode = 'n'
+					ttyLinux.writeChar(Hmax, 0, ' '*W)
+					env.x = 0
+					env.y = Hmax
+					updatepos()
+			elif ch == keys.enter:
+				env.mode = 'n'
+				ttyLinux.writeChar(Hmax, 0, ' '*W)
+				env.x = 0
+				env.y = Hmax
+				updatepos()
+				if env.cstring == 'q':
+					break
+				elif not env.cstring:
+					pass
+				elif env.cstring.split()[0] in c:
+					c[env.cstring.split()[0]](env, document)
+			else:
+				if len(ch) > 1 and ch[0] != keys.esc:
+					for char in ch:
+						command_key(char)
+				else:
+					command_key(ch)
+		elif env.mode == 'i':
+			if ch == keys.esc:
+				env.mode = 'n'
+				refreshscreen()
+				updatepos()
+			#print(ch, [ord(x) for x in ch])
+	time.sleep(.05)
