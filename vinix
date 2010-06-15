@@ -105,7 +105,7 @@ def normal_key(ch):
 		env.backlog = ''
 	elif len(cmds) == 1:
 		env.num = int('0'+env.backlog[:-len(cmd_string)])
-		cmds[0](env, document)
+		n[cmds[0]](env, document)
 		env.backlog = ''
 	elif ch == keys.esc or ch == keys.enter:
 		env.backlog = ''

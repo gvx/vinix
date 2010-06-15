@@ -11,5 +11,7 @@ class Table:
 		del self.__dict__[key]
 	def __contains__(self, value):
 		return value in self.__dict__
+	def __iter__(self):
+		return iter(self.__dict__)
 	def __eq__(self, other):
 		return type(self) == type(other) and self.__dict__ == other.__dict__
