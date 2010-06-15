@@ -54,9 +54,11 @@ def colon(env, document):
 	env.y = Hmax
 
 def gg(env, document):
-	env.num = min(env.num, len(document.text)-1)
+	env.num = min(env.num or 1, len(document.text)) - 1
 	env.y = 0
 	document.yindex = env.num
+	env.x = 0
+	env.clampx(env, document)
 	refreshscreen()
 def G(env, document):
 	if not env.num:
