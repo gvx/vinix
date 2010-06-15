@@ -10,6 +10,7 @@ import console
 #sys.path.append(os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'lpod')))
 #print(sys.path[-1])
 import lpod
+import lpod.document
 global _G
 _G = globals()
 
@@ -52,7 +53,14 @@ i = commands.i
 document = Table()
 document.text = open('ex2.txt').read().splitlines() #this will be changed
 document.yindex = 0
-#document.data = lpod.document.odf_get_document(file)
+def open_f(fname):
+	try:
+		document.data = lpod.document.odf_get_document(fname)
+	except IOError:
+		document.data = lpod.document.odf_new_document_from_type('text')
+	document.body = document.get_body()
+	document.filename = fname
+	
 #if document.data.get_type() != 'text':
 #	be very angry
 #document.data = lpod.document.odf_new_document_from_type('text')
