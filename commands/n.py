@@ -53,6 +53,16 @@ def colon(env, document):
 	env.x = 1
 	env.y = Hmax
 
+def gg(env, document):
+	env.num = min(env.num, len(document.text)-1)
+	env.y = 0
+	document.yindex = env.num
+	refreshscreen()
+def G(env, document):
+	if not env.num:
+		env.num = len(document.text)-1
+	return n.gg(env, document)
+
 self[':'] = colon
 self['\x1b[A'] = k
 self['\x1b[B'] = j
