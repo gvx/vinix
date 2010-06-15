@@ -141,16 +141,16 @@ while True:
 				else:
 					env.mode = 'n'
 					ttyLinux.writeChar(Hmax, 0, ' '*W)
-					env.x = 0
-					env.y = Hmax
+					env.x, env.y = env.oldpos
 					updatepos()
 			elif ch == keys.enter:
 				env.mode = 'n'
 				ttyLinux.writeChar(Hmax, 0, ' '*W)
-				env.x = 0
-				env.y = Hmax
+				env.x, env.y = env.oldpos
 				updatepos()
 				if env.cstring == 'q':
+					env.x, env.y = 0,Hmax
+					updatepos()
 					break
 				elif not env.cstring:
 					pass

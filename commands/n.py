@@ -50,6 +50,7 @@ def colon(env, document):
 	env.mode = 'c'
 	env.cstring = ''
 	ttyLinux.writeChar(Hmax, 0, ':')
+	env.oldpos = env.x, env.y
 	env.x = 1
 	env.y = Hmax
 
