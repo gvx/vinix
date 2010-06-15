@@ -96,8 +96,16 @@ def updatepos():
 refreshscreen()
 
 def normal_key(ch):
-	if env.backlog+ch in n:
-		n[env.backlog+ch](env, document)
+	cmd_string = (env.backlog+ch).lstrip('0123456789')
+	cmds = []
+	for c in n:
+		if c.startswith(cmd_string):
+			cmds.append(c)
+	if not len(cmds):
+		env.backlog = ''
+	elif len(cmds) == 1:
+		env.num = int('0'+env.backlog[:-len(cmd_string)])
+		cmds[0](env, document)
 		env.backlog = ''
 	elif ch == keys.esc or ch == keys.enter:
 		env.backlog = ''
