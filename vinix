@@ -13,9 +13,6 @@ import lpod
 global _G
 _G = globals()
 
-W, H = console.getTerminalSize()
-Wmax = W - 1
-Hmax = H - 1
 #from commands import commands
 #import commands
 
@@ -93,7 +90,7 @@ def updatepos():
 
 #print(commands.n.__dict__)
 
-refreshscreen()
+n.refresh(env, document)
 
 def normal_key(ch):
 	cmd_string = (env.backlog+ch).lstrip('0123456789')
@@ -104,7 +101,7 @@ def normal_key(ch):
 	if not len(cmds):
 		env.backlog = ''
 	elif len(cmds) == 1:
-		env.num = int('0'+env.backlog[:-len(cmd_string)])
+		env.num = int('0'+env.backlog[:(-len(cmd_string)+1) or len(env.backlog)])
 		n[cmds[0]](env, document)
 		env.backlog = ''
 	elif ch == keys.esc or ch == keys.enter:

@@ -7,12 +7,14 @@ def p(env, document):
 	updatepos()
 
 def j(env, document):
-	if env.y == Hmax-1:
-		if document.yindex < len(document.text)-1: #FIXME
-			document.yindex += 1
-			refreshscreen()
-	else:
-		env.y = env.y + 1
+	env.y += env.num or 1
+	if env.y > Hmaxw:
+		if (document.yindex + env.y - Hmaxw) < len(document.text): #FIXME
+			document.yindex += env.y - Hmaxw
+		else:
+			document.yindex = len(document.text) - 1
+		env.y = Hmaxw
+		refreshscreen()
 	env.clampx(env, document)
 	updatepos()
 def k(env, document):
@@ -35,10 +37,11 @@ def l(env, document):
 	updatepos()
 
 def refresh(env,document):
-	global H, W, Wmax, Hmax
+	global H, W, Wmax, Hmax, Hmaxw
 	W, H = console.getTerminalSize()
 	Wmax = W - 1
 	Hmax = H - 1
+	Hmaxw = Hmax - 1
 	refreshscreen()
 
 def colon(env, document):
