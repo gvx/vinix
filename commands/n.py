@@ -18,12 +18,14 @@ def j(env, document):
 	env.clampx(env, document)
 	updatepos()
 def k(env, document):
-	if env.y == 0:
-		if document.yindex > 0:
-			document.yindex -= 1
-			refreshscreen()
-	else:
-		env.y = env.y - 1
+	env.y -= env.num or 1
+	if env.y < 0:
+		if document.yindex > -env.y:
+			document.yindex += env.y
+		else:
+			document.yindex = 0
+		env.y = 0
+		refreshscreen()
 	env.clampx(env, document)
 	updatepos()
 def h(env, document):
