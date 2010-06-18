@@ -58,9 +58,11 @@ def open_f(fname):
 		document.data = lpod.document.odf_get_document(fname)
 	except IOError:
 		document.data = lpod.document.odf_new_document_from_type('text')
-	document.body = document.get_body()
+	document.body = document.data.get_body()
 	document.filename = fname
-	
+
+def save_s(fname=None):
+	document.data.save(fname)
 #if document.data.get_type() != 'text':
 #	be very angry
 #document.data = lpod.document.odf_new_document_from_type('text')
