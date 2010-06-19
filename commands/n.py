@@ -2,6 +2,10 @@ def i(env, document):
 	env.mode = 'i'
 	refreshscreen()
 
+def slash(env, document):
+	env.mode = 's'
+	refreshscreen()
+
 def p(env, document):
 	env.x = 0
 	updatepos()
@@ -71,3 +75,4 @@ self['\x1b[A'] = k
 self['\x1b[B'] = j
 self['\x1b[C'] = l
 self['\x1b[D'] = h
+self['/'] = slash
