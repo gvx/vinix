@@ -52,6 +52,7 @@ i = commands.i
 
 document = Table()
 document.text = open('ex2.txt').read().splitlines() #this will be changed
+document.annot = [[] for x in range(len(document.text))]
 document.yindex = 0
 def open_f(fname):
 	try:
@@ -75,7 +76,7 @@ def _():
 	return ' '*50+env.backlog
 drawbar.n = _
 def _():
-	return ' -- INSERT --'
+	return keys.esc + '[1m -- INSERT --'+ keys.esc + '[0m' + ' '*(W-13)
 drawbar.i = _
 
 def refreshbar():
@@ -177,5 +178,7 @@ while True:
 				env.mode = 'n'
 				refreshscreen()
 				updatepos()
+			elif ch in i:
+				i[ch](env, document)
 			#print(ch, [ord(x) for x in ch])
 	time.sleep(.05)
