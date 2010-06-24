@@ -4,7 +4,12 @@ def i(env, document):
 
 def slash(env, document):
 	env.mode = 's'
-	refreshscreen()
+	env.cstring = ''
+	ttyLinux.writeChar(Hmax, 0, '/')
+	env.oldpos = env.x, env.y
+	env.x = 1
+	env.y = Hmax
+	#refreshscreen()
 
 def p(env, document):
 	env.x = 0

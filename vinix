@@ -38,7 +38,7 @@ def clampx(env,document):
 env.clampx = clampx
 
 commands = Table()
-for mode in ['n', 'c', 'i']:
+for mode in ['n', 'c', 'i', 's']:
 	commands[mode] = Table()
 	commands[mode].self = commands[mode]
 	execfile('commands/'+mode+'.py', _G, commands[mode])
@@ -49,6 +49,7 @@ for mode in ['n', 'c', 'i']:
 n = commands.n
 c = commands.c
 i = commands.i
+s = commands.s
 
 document = Table()
 document.text = open('ex2.txt').read().splitlines() #this will be changed
@@ -78,6 +79,9 @@ drawbar.n = _
 def _():
 	return keys.esc + '[1m -- INSERT --'+ keys.esc + '[0m' + ' '*(W-13)
 drawbar.i = _
+def _():
+	return '/'+env.cstring
+drawbar.s = _
 
 def refreshbar():
 	ttyLinux.writeChar(Hmax, 0, drawbar[env.mode]().ljust(W))
@@ -181,4 +185,22 @@ while True:
 			elif ch in i:
 				i[ch](env, document)
 			#print(ch, [ord(x) for x in ch])
+		elif env.mode == 's':
+			if ch == keys.backspace:
+				if env.cstring:
+					env.cstring = env.cstring[:-1]
+					env.x -= 1
+					ttyLinux.writeChar(Hmax, 0, ('/'+env.cstring).ljust(W))
+					updatepos()
+				else:
+					env.mode = 'n'
+					ttyLinux.writeChar(Hmax, 0, ' '*W)
+					env.x, env.y = env.oldpos
+					updatepos()
+			elif ch == keys.enter:
+				env.mode = 'n'
+				ttyLinux.writeChar(Hmax, 0, ' '*W)
+				env.x, env.y = env.oldpos
+				updatepos()
+				#TODO the actual search
 	time.sleep(.05)
