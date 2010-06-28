@@ -51,9 +51,14 @@ c = commands.c
 i = commands.i
 s = commands.s
 
+colourcodes = Table()
+colourcodes.bold = '1'
+colourcodes.normal = '0'
+
 document = Table()
 document.text = open('ex2.txt').read().splitlines() #this will be changed
 document.annot = [[] for x in range(len(document.text))]
+document.annot[3].append(('bold', 0, 80))
 document.yindex = 0
 def open_f(fname):
 	try:
@@ -90,7 +95,12 @@ def refreshscreen():
 	ttyLinux.writeChar(0, 0, '')
 	y = 0
 	for line in document.text[document.yindex:document.yindex+H+1]:
-		sys.stdout.write(line.ljust(W))
+		oline = line
+		for a in document.annot[y+document.yindex]:
+			line = (line[:a[1]] + keys.esc + '[' + colourcodes[a[0]] +
+					'm' + line[a[1]:a[2]] + keys.esc + '[' +
+					colourcodes.normal + 'm' + line[a[2]:])
+		sys.stdout.write(line + ' '*(W-len(oline)))
 		y += 1
 		ttyLinux.writeChar(y, 0, '')
 	while y < Hmax:
