@@ -54,11 +54,14 @@ s = commands.s
 colourcodes = Table()
 colourcodes.bold = '1'
 colourcodes.normal = '0'
+colourcodes.underline = '4'
+colourcodes.italic = '4'
 
 document = Table()
 document.text = open('ex2.txt').read().splitlines() #this will be changed
 document.annot = [[] for x in range(len(document.text))]
 document.annot[3].append(('bold', 0, 80))
+document.annot[4] = [('italic', 41, 46), ('italic', 5, 12)]
 document.yindex = 0
 def open_f(fname):
 	try:
